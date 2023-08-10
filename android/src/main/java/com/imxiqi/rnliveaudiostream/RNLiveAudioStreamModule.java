@@ -1,10 +1,15 @@
 package com.imxiqi.rnliveaudiostream;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
+import android.media.audiofx.NoiseSuppressor;
 import android.util.Base64;
 import android.util.Log;
+
+import androidx.core.app.ActivityCompat;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -26,6 +31,8 @@ public class RNLiveAudioStreamModule extends ReactContextBaseJavaModule {
     private int audioSource;
 
     private AudioRecord recorder;
+    private NoiseSuppressor noiseSuppressor ;
+
     private int bufferSize;
     private boolean isRecording;
 
@@ -76,6 +83,7 @@ public class RNLiveAudioStreamModule extends ReactContextBaseJavaModule {
 
         int recordingBufferSize = bufferSize * 3;
         recorder = new AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, recordingBufferSize);
+        noiseSuppressor = NoiseSuppressor.create(recorder.getAudioSessionId());
     }
 
     @ReactMethod
@@ -113,5 +121,6 @@ public class RNLiveAudioStreamModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void stop(Promise promise) {
         isRecording = false;
+        noiseSuppressor.release();
     }
 }
